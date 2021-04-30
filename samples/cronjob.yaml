@@ -1,0 +1,36 @@
+# ┌───────────── minute (0 - 59)
+# │ ┌───────────── hour (0 - 23)
+# │ │ ┌───────────── day of the month (1 - 31)
+# │ │ │ ┌───────────── month (1 - 12)
+# │ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday;
+# │ │ │ │ │                                   7 is also Sunday on some systems)
+# │ │ │ │ │
+# │ │ │ │ │
+# * * * * *
+#
+# Step values can be used in conjunction with ranges. Following a range with /<number> 
+# specifies skips of the number's value through the range. For example, 0-23/2 can be 
+# used in the hours field to specify command execution every other hour (the alternative 
+# in the V7 standard is 0,2,4,6,8,10,12,14,16,18,20,22). Steps are also permitted after 
+# an asterisk, so if you want to say "every two hours", just use */2.
+#
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure

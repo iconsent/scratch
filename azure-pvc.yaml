@@ -1,0 +1,12 @@
+# https://docs.microsoft.com/en-us/azure/aks/azure-disks-dynamic-pv
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azure-managed-disk
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: default
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,62 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: sftp
+spec:
+  type: "LoadBalancer"
+  ports:
+  - name: "ssh"
+    port: 22
+    targetPort: 22
+  selector:
+    app: sftp
+status:
+  loadBalancer: {}
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: sftp
+  labels:
+    app: sftp
+spec:
+  # how many pods and indicate which strategy we want for rolling update
+  replicas: 1
+  minReadySeconds: 10
+
+  selector:
+    matchLabels: 
+      app: sftp
+  
+  template:
+    metadata:
+      labels:
+        app: sftp
+      #annotations:
+      #  container.apparmor.security.beta.kubernetes.io/sftp: runtime/default
+
+    spec:
+      #secrets and config
+      #volumes:
+      #- name: sftp-public-keys
+      #  configMap:
+      #    name: sftp-public-keys
+      volumes:
+      - name: azure-disk
+        persistentVolumeClaim:
+          claimName: azure-managed-disk
+      
+      containers:
+        #the sftp server itself
+        - name: sftp
+          image: atmoz/sftp:latest
+          imagePullPolicy: Always
+          args: ["ftpuser:password:1001:100:"] #create users and dirs
+          ports:
+            - containerPort: 22
+          volumeMounts:
+          - name: azure-disk
+            mountPath: /home/ftpuser/
+        

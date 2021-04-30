@@ -1,0 +1,51 @@
+#
+# this creates a dummy NFS service that 
+# internally is using a ephimeral storage
+# this nfs-service provides the support for nfs-pv and nfs-pvc
+#
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: nfs-service
+spec:
+  # default
+  # type: ClusterIP
+  selector:
+    role: nfs
+  ports:
+    # Open the ports required by the NFS server
+    # Port 2049 for TCP
+    - name: nfs
+      port: 2049
+      protocol: TCP
+    - name: mountd
+      port: 20048
+    - name: rpcbind-udp
+      port: 111
+      protocol: UDP
+    - name: rpcbind-tcp
+      port: 111
+      protocol: TCP
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nfs-server-pod
+  labels:
+    role: nfs
+spec:
+  containers:
+    - name: nfs-server-container
+      image: gcr.io/google-samples/nfs-server:1.1
+      securityContext:
+        privileged: true
+        capabilities:
+          add: ["NET_ADMIN", "SYS_TIME","SYS_ADMIN"]
+      volumeMounts:
+      - mountPath: /exports
+        name: dummy-vol  
+  volumes:
+    - name: dummy-vol
+      emptyDir: {} 
+        #medium: "Memory"

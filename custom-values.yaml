@@ -1,0 +1,19 @@
+helmWait: false
+workers:
+    ## if the airflow workers StatefulSet should be deployed
+    ##
+  enabled: false
+redis:
+  enabled: false
+flower:
+  enabled: false
+  
+airflow:
+  executor: KubernetesExecutor
+  
+  dags:
+    persistence:
+      enabled: true
+      storageClassName: default
+      accessMode: ReadOnlyMany
+      size: 1Gi

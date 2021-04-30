@@ -1,0 +1,74 @@
+---
+#Single NFS Server Pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nfs-server
+  labels:
+    k8s-app: nfs-pod
+    tag: nfs-pod-test
+spec:
+  containers:
+  - name: nfs-server
+    image: gcr.io/google-samples/nfs-server:1.1
+    ports:
+      - name: nfs
+        hostPort: 2049
+        containerPort: 2049
+        protocol: TCP
+      - name: mountd
+        hostPort: 20048
+        containerPort: 20048
+        protocol: TCP
+      - name: rpcbind
+        hostPort: 111
+        containerPort: 111
+        protocol: TCP
+    securityContext:
+      privileged: true
+---
+#Single Pod NFS Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: nfs-pod-service
+  labels:
+    k8s-app: nfs-pod
+    tag: nfs-pod-test
+spec:
+  ports:
+    - name: nfs
+      port: 2049
+      protocol: TCP
+    - name: mountd
+      port: 20048
+      protocol: TCP
+    - name: rpcbind
+      port: 111
+      protocol: TCP
+  selector:
+    k8s-app: nfs-pod
+    tag: nfs-pod-test
+---
+#Single Pod NFS client
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nfs-pod-client
+  labels:
+    name: nfs-pod-client
+    tag: nfs-pod-test
+spec:
+  containers:
+  - name: app-pod
+    image: redis
+    volumeMounts:
+    - name: webapp
+      mountPath: /mnt
+  volumes:
+  - name: webapp
+    nfs:
+      # FIXME: The ip or domain of nfs-pod-service
+      server: nfs-pod-service.default.svc.cluster.local
+      path: "/exports"
+      readOnly: false

@@ -1,0 +1,15 @@
+# Here is an example Job config. It computes π to 2000 places 
+# and prints it out. It takes around 10s to complete.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+spec:
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: perl
+        command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      restartPolicy: Never
+  backoffLimit: 4
