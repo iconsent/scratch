@@ -15,5 +15,5 @@ helm install \
   --version $CHART_VERSION \
   --values $VALUES_FILE \
   --set dags.persistence.enabled=true \
-	--set dags.persistence.existingClaim=azure-managed-disk \
+	--set dags.persistence.existingClaim=airflow-pv-volume \
   --set dags.gitSync.enabled=false
